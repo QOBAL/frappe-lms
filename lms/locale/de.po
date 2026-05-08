@@ -8762,3 +8762,6 @@ msgstr "{} Bestanden"
 msgid "{} Published"
 msgstr ""
 
+msgid "Including {0}% VAT"
+msgstr "Einschließlich {0}% MwSt"
+
