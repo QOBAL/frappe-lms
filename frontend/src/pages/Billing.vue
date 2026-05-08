@@ -56,6 +56,7 @@
 							<div class="font-bold text-ink-gray-9">
 								{{ orderSummary.data.total_amount_formatted }}
 							</div>
+							<div v-if="vat > 0" class="text-ink-gray-5 text-xs">{{ __('Including {0}% VAT').format(vat) }}</div>
 						</div>
 					</div>
 
@@ -139,9 +140,9 @@
 						</div>
 						<div class="space-y-4">
 							<Link
-								doctype="Country"
+								doctype="Qobal Payment Country"
 								:value="billingDetails.country"
-								@change="(option) => changeCurrency(option)"
+								@change="(option) => handleCountryChange(option)"
 								:label="__('Country')"
 								:required="!!fieldMeta.country?.reqd"
 							/>
@@ -308,6 +309,7 @@ const orderSummary = createResource({
 const appliedCoupon = ref(null)
 const billingDetails = reactive({})
 const fieldMeta = reactive({})
+const vat = ref(null)
 
 const getDefault = (fieldname) => fieldMeta[fieldname]?.default || ''
 
@@ -454,9 +456,19 @@ const showError = (err) => {
 	toast.error(err.messages?.[0] || err)
 }
 
-const changeCurrency = (country) => {
+const handleCountryChange = (country) => {
 	billingDetails.country = country
 	orderSummary.reload()
+
+	call('frappe.client.get_value', {
+		doctype: 'Qobal Payment Country',
+		fieldname: 'vat',
+		filters: {
+			country_name: country,
+		},
+	}).then((res) => {
+		vat.value = res.vat
+	})
 }
 
 const isZeroAmount = computed(() => {
